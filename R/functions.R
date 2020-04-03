@@ -63,7 +63,7 @@ diff_geo_means <- function(data, i){
 #' @importFrom boot boot
 #' @importFrom  boot boot.ci
 log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05, confint_type = 'bca', reference_group = NULL) {
-  group = df_all$child_gender
+
   group <- as.factor(group)
 
   if(nlevels(group) != 2)
