@@ -4,20 +4,28 @@
 \alias{plot_geo_means}
 \title{plot_geo_means}
 \usage{
-plot_geo_means(composition, group)
+plot_geo_means(composition, group, type = "both")
 }
 \arguments{
 \item{composition}{A composition (from the acomp function)}
 
 \item{group}{A vector (single column) of the grouping variable. This can be
 any number of levels.}
+
+\item{type}{The type of plot to return. Can be one of:
+\itemize{
+  \item "component" The colours of the bars represent the components of the composition
+  \item "group" The colours of the bars represent the levels of `group`.
+  \item "both" (default) Returns a 2-panel plot with both 'component' and 'group' plots.
+}}
 }
 \value{
 
 }
 \description{
 Creates a geometric mean barplot to visualise differences between
-groups.
+groups. The logratio between the whole geometric mean and the geometric mean of
+the group is calculated. These are presented on a log scale.
 }
 \examples{
 

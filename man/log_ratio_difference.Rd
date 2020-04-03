@@ -9,7 +9,8 @@ log_ratio_difference(
   group,
   n_rep = 1000,
   alpha = 0.05,
-  confint_type = "bca"
+  confint_type = "bca",
+  reference_group = NULL
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ This variable must only have two levels (e.g. 'Male' and 'Female').}
 
 \item{confint_type}{Type of confidence interval. One of ("norm","basic", "stud", "perc", "bca").
 Default value is 'bca'}
+
+\item{reference_group}{The level of `group` that should be treated as the
+reference group for the contrast}
 }
 \value{
 

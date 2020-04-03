@@ -47,6 +47,8 @@ diff_geo_means <- function(data, i){
 #' @param alpha Alpha (i.e. p value) to use for confidence intervals
 #' @param confint_type Type of confidence interval. One of ("norm","basic", "stud", "perc", "bca").
 #' Default value is 'bca'
+#' @param reference_group The level of `group` that should be treated as the
+#' reference group for the contrast
 #'
 #' @references Martín Fernández, Josep Antoni, Josep Daunis i Estadella, and Glòria Mateu i Figueras.
 #' "On the interpretation of differences between groups for compositional data."
@@ -60,15 +62,22 @@ diff_geo_means <- function(data, i){
 #'
 #' @importFrom boot boot
 #' @importFrom  boot boot.ci
-log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05, confint_type = 'bca') {
-
+log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05, confint_type = 'bca', reference_group = NULL) {
+  group = df_all$child_gender
   group <- as.factor(group)
 
   if(nlevels(group) != 2)
     stop("The 'group' must have 2 levels")
 
-  reference <- levels(group)[1]
-  group <- as.integer(group)
+  if (is.null(reference_group)) {
+    reference <- levels(group)[1]
+  } else {
+    if (!(reference_group %in% levels(group)))
+      stop(paste("The 'reference_group' is not a level within 'group'. The available levels are:", paste(levels(group), collapse = ', ')))
+    reference <- reference_group
+  }
+
+  group <- ifelse(group == reference, 1, 2)
 
   df <- as.data.frame(cbind(composition, group))
 
@@ -115,11 +124,18 @@ plot_log_ratio_difference <- function(data) {
 #' plot_geo_means
 #'
 #' @description Creates a geometric mean barplot to visualise differences between
-#' groups.
+#' groups. The logratio between the whole geometric mean and the geometric mean of
+#' the group is calculated. These are presented on a log scale.
 #'
 #' @param composition A composition (from the acomp function)
 #' @param group A vector (single column) of the grouping variable. This can be
 #' any number of levels.
+#' @param type The type of plot to return. Can be one of:
+#' \itemize{
+#'   \item "component" The colours of the bars represent the components of the composition
+#'   \item "group" The colours of the bars represent the levels of `group`.
+#'   \item "both" (default) Returns a 2-panel plot with both 'component' and 'group' plots.
+#' }
 #'
 #' @references Martín Fernández, Josep Antoni, Josep Daunis i Estadella, and Glòria Mateu i Figueras.
 #' "On the interpretation of differences between groups for compositional data."
@@ -132,7 +148,7 @@ plot_log_ratio_difference <- function(data) {
 #'
 #' @import patchwork
 #'
-plot_geo_means <- function(composition, group) {
+plot_geo_means <- function(composition, group, type = 'both') {
 
   overall_mean = geo_mean(composition)
   group = as.factor(group)
@@ -157,5 +173,14 @@ plot_geo_means <- function(composition, group) {
     geom_col(position = position_dodge()) +
     labs(fill = 'Group', y = 'log(gk/G(X))', x = NULL)
 
-  p1 / p2
+  if (type == 'both') {
+    p1 / p2
+  } else if (type == 'component') {
+    p1
+  } else if (type == 'group') {
+    p2
+  } else {
+    stop("The 'type' must be one of: 'both', 'group', 'component'")
+  }
+
 }
