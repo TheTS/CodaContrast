@@ -162,7 +162,8 @@ plot_geo_means <- function(composition, group, type = 'both') {
   }
 
   result <- result %>%
-    pivot_longer(cols = -group)
+    pivot_longer(cols = -group) %>%
+    mutate(name = factor(name, levels = names(composition)))
 
 
   p1 <- ggplot(result, aes(x = group, y = value, fill = name)) +
