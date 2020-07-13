@@ -208,6 +208,7 @@ plot_geo_means <- function(composition, group, type = 'both') {
 #'
 #' @importFrom Hotelling hotelling.test
 #' @importFrom dplyr bind_rows
+#' @importFrom dplyr case_when
 #'
 pairwise_hotelling_test <- function(comp, groups, adjust = c('holm')) {
 
