@@ -150,6 +150,10 @@ plot_log_ratio_difference <- function(data) {
 #'
 plot_geo_means <- function(composition, group, type = 'both') {
 
+  if(!require(patchwork)) {
+    stop('The `plot_geo_means` function requires the `patchwork` R package. Please install it first and try again.')
+  }
+
   overall_mean = geo_mean(composition)
   group = as.factor(group)
 
@@ -185,3 +189,60 @@ plot_geo_means <- function(composition, group, type = 'both') {
   }
 
 }
+
+
+
+#' pairwise_hotelling_test
+#'
+#' The Hotelling T-squared test is the multivariate equivalent of a t-test. This
+#' function can be used as a post-hoc test to a MANOVA.
+#'
+#' @param comp A dataframe or composition object of multiple parts
+#' @param groups A vector of the grouping factor. Must be same length as `comp`
+#' @param adjust Method of p value adjustment (default ='holm'). See \code{\link[stats]{p.adjust.methods}}
+#'
+#' @return A dataframe of pairwise contrasts
+#' @export
+#'
+#' @examples
+#'
+#' @importFrom Hotelling hotelling.test
+#' @importFrom dplyr bind_rows
+#'
+pairwise_hotelling_test <- function(comp, groups, adjust = c('holm')) {
+
+  if(!require(Hotelling)) {
+    stop('The `pairwise.hotelling.test` function requires the `Hotelling` R package. Please install it first and try again.')
+  }
+
+  groups <- as.factor(groups)
+
+  if(length(groups) != nrow(comp)) {
+    stop('The `comp` and `groups` variables must be the same length.')
+  }
+
+  lvls <- levels(groups)
+  pair <- combn(1:length(lvls), 2)
+  result <- list()
+
+  for(i in 1:ncol(pair)) {
+
+    t <- hotelling.test(comp ~ groups, pair = c(pair[,i][1], pair[,i][2]))
+
+    result[[i]] <- data.frame(pair = paste(lvls[pair[,i]], collapse=" vs. "),
+                              t_squared = round(t$stats$statistic * t$stats$m, 5),
+                              df = paste0('(', t$stats$df[1], ', ', t$stats$df[2], ')'),
+                              p.value = round(t$pval, 5))
+  }
+
+  result <- bind_rows(result)
+  result$p.value.adj <- p.adjust(result$p.value, method = adjust)
+  result$sig <- case_when(result$p.value.adj < 0.001 ~ '***',
+                          result$p.value.adj < 0.01 ~ '**',
+                          result$p.value.adj < 0.05 ~ '*',
+                          result$p.value.adj < 0.1 ~ '.',
+                          TRUE ~ '')
+  result
+}
+
+
