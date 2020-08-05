@@ -4,10 +4,12 @@
 \alias{plot_log_ratio_difference}
 \title{plot_log_ratio_difference}
 \usage{
-plot_log_ratio_difference(data)
+plot_log_ratio_difference(data, h_line_color = "black")
 }
 \arguments{
 \item{data}{A dataframe output from \code{\link{log_ratio_difference}}}
+
+\item{h_line_color}{String. Color of the horozontal line crossing 0.}
 }
 \value{
 
