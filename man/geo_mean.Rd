@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{geo_mean}
 \alias{geo_mean}
-\title{diff_geo_means}
+\title{geo_mean}
 \usage{
 geo_mean(x)
 }
@@ -13,5 +13,5 @@ geo_mean(x)
 
 }
 \description{
-diff_geo_means
+geo_mean
 }

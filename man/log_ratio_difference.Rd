@@ -10,7 +10,8 @@ log_ratio_difference(
   n_rep = 1000,
   alpha = 0.05,
   confint_type = "bca",
-  reference_group = NULL
+  reference_group = NULL,
+  percentage = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ Default value is 'bca'}
 
 \item{reference_group}{The level of `group` that should be treated as the
 reference group for the contrast}
+
+\item{percentage}{Return the difference as a percentage (default = `FALSE`)}
 }
 \value{
 

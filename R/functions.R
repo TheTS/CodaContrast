@@ -1,5 +1,5 @@
 
-#' diff_geo_means
+#' geo_mean
 #'
 #' @param x .
 #'
@@ -16,11 +16,12 @@ geo_mean <- function (x) {
 #'
 #' @param data .
 #' @param i .
+#' @param percentage Return the difference as a percentage (default = `FALSE`)
 #'
 #' @return
 #'
 #' @examples
-diff_geo_means <- function(data, i){
+diff_geo_means <- function(data, i, percentage = FALSE){
 
   d <- data[i, ]
 
@@ -30,7 +31,13 @@ diff_geo_means <- function(data, i){
   d2 <- d[d$group == 2, 1:(ncol(data)-1)]
   g2 <- geo_mean(d2)
 
-  return(as.numeric(log(g2 / g1)))
+  lr <- as.numeric(log(g2 / g1))
+
+  if (percentage) {
+    return((exp(lr) - 1) * 100)
+  }
+
+  lr
 }
 
 
@@ -49,6 +56,7 @@ diff_geo_means <- function(data, i){
 #' Default value is 'bca'
 #' @param reference_group The level of `group` that should be treated as the
 #' reference group for the contrast
+#' @param percentage Return the difference as a percentage (default = `FALSE`)
 #'
 #' @references Martín Fernández, Josep Antoni, Josep Daunis i Estadella, and Glòria Mateu i Figueras.
 #' "On the interpretation of differences between groups for compositional data."
@@ -62,7 +70,7 @@ diff_geo_means <- function(data, i){
 #'
 #' @importFrom boot boot
 #' @importFrom  boot boot.ci
-log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05, confint_type = 'bca', reference_group = NULL) {
+log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05, confint_type = 'bca', reference_group = NULL, percentage = FALSE) {
 
   group <- as.factor(group)
 
@@ -81,7 +89,7 @@ log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05,
 
   df <- as.data.frame(cbind(composition, group))
 
-  bs <- boot(df, diff_geo_means, n_rep, strata = group)
+  bs <- boot(df, diff_geo_means, n_rep, strata = group, percentage = percentage)
 
   c_int <- data.frame(lower = numeric(), upper = numeric())
 
@@ -100,6 +108,7 @@ log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05,
 #'
 #' @param data A dataframe output from \code{\link{log_ratio_difference}}
 #' @param h_line_color String. Color of the horozontal line crossing 0.
+#' @param percentage Label y axis as percentage difference (default = `FALSE`)
 #'
 #' @references Martín Fernández, Josep Antoni, Josep Daunis i Estadella, and Glòria Mateu i Figueras.
 #' "On the interpretation of differences between groups for compositional data."
@@ -112,14 +121,23 @@ log_ratio_difference <- function(composition, group, n_rep = 1000, alpha = 0.05,
 #'
 #' @import ggplot2
 #'
-plot_log_ratio_difference <- function(data, h_line_color = 'black') {
+plot_log_ratio_difference <- function(data, h_line_color = 'black', percentage = FALSE) {
 
   ggplot(data, aes(x = name, y = estimate, ymin = lower, ymax = upper)) +
     geom_hline(yintercept = 0, color = h_line_color) +
     geom_errorbar(width = 0.15) +
     geom_point(size = 2) +
-    theme(legend.position = "none", axis.title = element_text()) +
-    labs(x = "", y = "Log-ratio difference", title="", caption = paste0('Reference group: ', data$reference[1]))
+    theme(legend.position = "none", axis.title = element_text()) -> p
+
+  if (percentage) {
+
+    p <- p + labs(x = "", y = "Difference (%)", title="", caption = paste0('Reference group: ', data$reference[1]))
+  } else {
+    p <- p +  labs(x = "", y = "Log-ratio difference", title="", caption = paste0('Reference group: ', data$reference[1]))
+  }
+
+  p
+
 }
 
 

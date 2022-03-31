@@ -4,12 +4,14 @@
 \alias{diff_geo_means}
 \title{diff_geo_means}
 \usage{
-diff_geo_means(data, i)
+diff_geo_means(data, i, percentage = FALSE)
 }
 \arguments{
 \item{data}{.}
 
 \item{i}{.}
+
+\item{percentage}{Return the difference as a percentage (default = `FALSE`)}
 }
 \value{
 
